@@ -1,0 +1,338 @@
+package main
+
+import (
+	"crypto/rand"
+	"errors"
+	"github.com/Nik-U/pbc"
+	"log"
+	"math"
+	"math/big"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
+
+	"fmt"
+)
+
+var tableG1 sync.Map
+var tableGT sync.Map
+
+var usingCache = false
+var tablesComputed = false
+
+func computeTableG1(gen *pbc.Element, bound int64) {
+
+	aux := gen.NewFieldElement()
+	aux.Set(gen)
+
+	for j := int64(0); j <= bound; j++ {
+		tableG1.Store(aux.String(), j)
+		aux.Mul(aux, gen)
+	}
+}
+
+func computeTableGT(gen *pbc.Element, bound int64) {
+
+	aux := gen.NewFieldElement()
+	aux.Set(gen)
+
+	for j := int64(0); j <= bound; j++ {
+		tableGT.Store(aux.String(), j)
+		aux.Mul(aux, gen)
+	}
+}
+
+// PrecomputeTables builds the maps necessary
+// for the giant step, baby step algorithm
+//func (pk *PublicKey) PrecomputeTables(genG1 *pbc.Element, genGT *pbc.Element) {
+//
+//	// sqrt of the largest possible message
+//	bound := int64(math.Ceil(math.Sqrt(float64(pk.T.Int64())))) + 1
+//
+//	// pre-compute the tables for the giant steps
+//	computeTableGT(genGT, bound)
+//	computeTableG1(genG1, bound)
+//
+//	tablesComputed = true
+//}
+
+
+// PublicKey is the BGN public key used for encryption
+// as well as performing homomorphic operations on ciphertexts
+type PublicKey struct {
+	Pairing       *pbc.Pairing // pairing between G1 and G2
+	G1            *pbc.Element // G1 group
+	P             *pbc.Element // generator of G1
+	Q             *pbc.Element
+	N             *big.Int // product of two primes
+	T             *big.Int // message space T
+	PolyBase      int      // ciphertext polynomial encoding base
+	FPScaleBase   int      // fixed point encoding scale base
+	FPPrecision   float64  // min error tolerance for fixed point encoding
+	Deterministic bool     // whether or not the homomorphic operations are deterministic
+}
+
+// SecretKey used for decryption of ciphertexts
+type SecretKey struct {
+	Key      *big.Int
+	PolyBase int
+}
+
+// NewKeyGen creates a new public/private key pair of size bits
+func NewKeyGen(keyBits int, T *big.Int, polyBase int, fpScaleBase int, fpPrecision float64, deterministic bool) (*PublicKey, *SecretKey, error) {
+
+	if keyBits < 16 {
+		panic("key bits must be >= 16 bits in length")
+	}
+
+	var q1 *big.Int    // random prime
+	var q2 *big.Int    // secret key (random prime)
+	var N *big.Int     // n = r*q
+	var P *pbc.Element // field element   -g
+	var Q *pbc.Element // field element   -h
+
+	// generate a new random prime r
+	q1, err := rand.Prime(rand.Reader, keyBits)
+
+	// generate a new random prime q (this will be the secret key)
+	q2, err = rand.Prime(rand.Reader, keyBits)
+
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if q1.Cmp(T) < 0 || q2.Cmp(T) < 0 {
+		panic("Message space is greater than the group order!")
+	}
+
+	// compute the product of the primes
+	N = big.NewInt(0).Mul(q1, q2)
+	params := pbc.GenerateA1(N)
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// create a new pairing with given params
+	pairing := pbc.NewPairing(params)
+
+	// generate the two multiplicative groups of
+	// order n (using pbc pairing library)
+	G1 := pairing.NewG1()
+
+	// obtain l generated from the pbc library
+	// is a "small" number s.t. p + 1 = l*n
+	l, err := parseLFromPBCParams(params)
+
+	// choose random point P in G which becomes a generator for G of order N
+	P = G1.Rand()
+	P.PowBig(P, big.NewInt(0).Mul(l, big.NewInt(4)))
+	// Make P a generate for the subgroup of order q1T
+
+	// choose random Q in G1
+	Q = G1.NewFieldElement()
+	Q.PowBig(P, newCryptoRandom(N))
+	Q.PowBig(Q, q2)//-h = Q(generator of G)^q2
+
+	// create public key with the generated groups
+	pk := &PublicKey{pairing, G1, P, Q, N, T, polyBase, fpScaleBase, fpPrecision, deterministic}
+
+	// create secret key
+	sk := &SecretKey{q1, polyBase}
+
+	if err != nil {
+		panic("Couldn't generate key params!")
+	}
+
+	//pk.computeEncodingTable()
+
+	return pk, sk, err
+}
+
+//TODO:SECOND STEP DecryptElement
+func (sk *SecretKey) DecryptElement(el *pbc.Element, pk *PublicKey) *big.Int {
+
+	gsk := pk.G1.NewFieldElement()
+	csk := pk.G1.NewFieldElement()
+
+	gsk.PowBig(pk.P, sk.Key)//P^q1  #base number
+	csk.PowBig(el, sk.Key)//C^q1  #real number
+
+	//test := pk.G1.NewFieldElement()
+	//var e *big.Int
+	//e = big.NewInt(8)
+	//test.PowBig(gsk,e)
+	//csk.Mul(csk,test)
+
+
+
+	/*starttime*/
+	start := time.Now()
+	test , _ := rand.Int(rand.Reader,big.NewInt(1000000000))
+	cipher := gsk.NewFieldElement()
+	cipher.Set(gsk)
+	cipher.PowBig(cipher,test)
+	temp := csk.NewFieldElement()
+	temp.Set(csk)
+	cipher.Mul(cipher,temp)
+	/*endtime*/
+	cost := time.Since(start)
+	fmt.Printf("Enc cost=[%s]\n",cost)
+
+	/*starttime*/
+	start = time.Now()
+	//pt, _ := pk.RecoverMessageWithDL(gsk, csk)
+	//pt, _ := pk.getDL(cipher,gsk)
+	pt, _ := pk.getDL(csk,gsk)
+	/*endtime*/
+	cost = time.Since(start)
+	fmt.Printf("Eval cost=[%s]\n",cost)
+
+	/*starttime*/
+	start = time.Now()
+	i := new(big.Int)
+	i.SetString(pt.String(), 10)
+	k := new(big.Int)
+	k.SetString(test.String(), 10)
+	rc := big.NewInt(0).Sub(i,k)
+	rc.String()
+	/*endtime*/
+	cost = time.Since(start)
+	fmt.Printf("Dec cost=[%s]\n",cost)
+
+	return pt
+}
+
+//TODO:forth step
+// obtain the discrete log in O(sqrt(T)) time using giant step baby step algorithm
+func (pk *PublicKey) getDL(csk *pbc.Element, gsk *pbc.Element) (*big.Int, error) {
+
+	// sqrt of the largest possible message
+	bound := int64(math.Ceil(math.Sqrt(float64(pk.T.Int64())))) + 1
+	aux1 := gsk.NewFieldElement()
+	aux1.Set(gsk)
+
+	/*starttime*/
+	//start := time.Now()
+	for j := int64(0); j <= bound; j++ {
+		tableG1.Store(aux1.String(), j)
+		aux1.Mul(aux1, gsk)
+	}
+	/*endtime*/
+	//cost := time.Since(start)
+	//fmt.Printf("genTableG1 cost=[%s]\n",cost)
+	//if !tablesComputed {
+	//	panic("DL tables not computed!")
+	//}
+
+	//bound := int64(math.Ceil(math.Sqrt(float64(pk.T.Int64()))))
+
+	aux := csk.NewFieldElement()
+	gamma := gsk.NewFieldElement()
+
+	//gamma.Set(gsk)
+	//gamma.MulBig(gamma, big.NewInt(0))
+
+	aux.Set(csk)
+	aux.Mul(aux, gamma)
+
+	gamma.Set(gsk)
+	gamma.MulBig(gamma, big.NewInt(bound))
+
+	var val *big.Int
+	var found bool
+
+	for i := int64(0); i <= bound; i++ {
+
+		found = false
+		val = big.NewInt(0)
+
+		value, hit := tableG1.Load(aux.String())
+		if v, ok := value.(int64); ok {
+			val = big.NewInt(v)
+			found = hit
+		}
+
+		if found {
+			dl := big.NewInt(i*bound + val.Int64() + 1)
+
+			return dl, nil
+		}
+		aux.Div(aux, gamma)
+	}
+
+	return nil, errors.New("cannot find discrete log; out of bounds")
+}
+
+func (pk *PublicKey) EncryptElement(x *big.Int) *pbc.Element {
+
+	G := pk.G1.NewFieldElement()
+	G.PowBig(pk.P, x)//G=P^x
+
+	r := newCryptoRandom(pk.N)
+	H := pk.G1.NewFieldElement()
+	H.PowBig(pk.Q, r)//H=Q^r
+
+	C := pk.G1.NewFieldElement()
+	return C.Mul(G, H)//C=G*H
+}
+
+
+// TOTAL HACK to access the generated "l" in the C struct
+// which the PBC library holds. The golang wrapper has
+// no means of accessing the struct variable without
+// knowing the exact memory mapping. Better approach
+// would be to either compute l on the fly or figure
+// out the memory mapping between the C struct and
+// golang equivalent
+func parseLFromPBCParams(params *pbc.Params) (*big.Int, error) {
+
+	paramsStr := params.String()
+	lStr := paramsStr[strings.Index(paramsStr, "l")+2 : len(paramsStr)-1]
+	lInt, err := strconv.ParseInt(lStr, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	return big.NewInt(lInt), nil
+}
+
+func main() {
+
+	keyBits := 512 // length of q1 and q2
+	messageSpace := big.NewInt(int64(math.Pow(10, 150)))
+	polyBase := 3 // base for the ciphertext polynomial
+	fpScaleBase := 3
+	fpPrecision := 0.0001
+
+	pk, sk, _ := NewKeyGen(keyBits, messageSpace, polyBase, fpScaleBase, fpPrecision, true)
+
+	//genG1 := pk.P.NewFieldElement()
+	//genG1.PowBig(pk.P, sk.Key)//genG1=P^q2
+	//
+	//genGT := pk.Pairing.NewGT().Pair(pk.P, pk.P)
+	//genGT.PowBig(genGT, sk.Key)//genGT=genGT^q2
+	//pk.PrecomputeTables(genG1, genGT)
+
+	var i int64
+
+	for i = 1;i<=10;i++{
+		test , _ := rand.Int(rand.Reader, messageSpace)
+		c := pk.EncryptElement(test)
+		decryptM := sk.DecryptElement(c, pk)
+		fmt.Printf("E(%d) = E(%s)\n\n", test, decryptM)
+	}
+}
+
+
+// generates a new random number < max
+func newCryptoRandom(max *big.Int) *big.Int {
+	rand, err := rand.Int(rand.Reader, max)
+	if err != nil {
+		log.Println(err)
+	}
+
+	return rand
+}
