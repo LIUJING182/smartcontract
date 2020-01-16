@@ -106,6 +106,7 @@ I modify the project https://github.com/sachaservan/bgn according to my needs.Th
 The official direct is  https://godoc.org/github.com/Nik-U/pbc.
 
 In my machine,Ubuntu18.04,I do the following steps.
+
 1、install GMP
 ```
 sudo apt-get install libgmp-dev
@@ -125,3 +126,25 @@ make
 sudo make install
 sudo ldconfig(After installing, you may need to rebuild the search path for libraries)
 ```
+5、I download the PBC Go Wrapper(https://github.com/Nik-U/pbc)
+## run bgn in chaincode
+There is a way for you to import go packages into the chaincode
+
+you can put your packages under src/vendor folder
+src/
+
+______chaincode.go
+
+______vendor/
+
+__________[other packages]
+
+But this does not solve my problem completely,the bgn need the support of C language.
+
+I recompile the image--hyperledger/fabric-ccenv, add the library I need.Because the chaincode is compiled in a container which is run base on fabric-ccenv image.
+### the problems I come to across
+pt-get install vim命令则会有如下提示：
+E:Unable to locate package vim
+
+
+我们需要先敲入apt-get update命令
