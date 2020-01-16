@@ -1,5 +1,5 @@
 # smartcontract
-some experiments in hyperledger
+some experiments with hyperledger1.4.1 in Ubuntu18.04
 # build the network
 ## Pre-requisite
 ### docker
@@ -98,4 +98,28 @@ network:to build the network.You can check the docker-compose.yml to see the det
 
 network_resources:something about cryptography,for example,key
 
-java:In the official direct,they coperate java file using command line.If you prefer IDE,you can open java file with Idea and modify the java file according to your needs.
+java:In the official direct,they coperate java file using command line.If you prefer IDE,you can open java file with Idea and modify the java file according to your needs.In /java/src/main/java/org/example/config/Config.java,you can find the location of chaincode.
+# my experiment1-bgn
+I use go chaincode.
+I modify the project https://github.com/sachaservan/bgn according to my needs.The bgn is based on pbc.So I need to install pbc first.
+## The detail of installation
+The official direct is  https://godoc.org/github.com/Nik-U/pbc.
+In my machine,Ubuntu18.04,I do the following steps.
+1、install GMP
+```
+sudo apt-get install libgmp-dev
+```
+2、install the dependencies of pbc
+```
+sudo apt-get install build-essential flex bison
+```
+3、download PBC library source code
+
+I download PBC library source code in https://crypto.stanford.edu/pbc/download.html
+compile and install
+```
+./configure
+make
+sudo make install
+sudo ldconfig(After installing, you may need to rebuild the search path for libraries)
+```
