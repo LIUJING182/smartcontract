@@ -146,7 +146,7 @@ I recompile the image--hyperledger/fabric-ccenv, add the library I need.Because 
 1、pt-get install vim：
 E:Unable to locate package vim
 
-
 We can type "apt-get update"
+
 2、create a new user and delete a user in Ubuntu18.04
 https://blog.csdn.net/qq_33867131/article/details/86490083
