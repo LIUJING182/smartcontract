@@ -1,10 +1,10 @@
-# smartcontract
+# Smart Contract
 some experiments with hyperledger1.4.1 in Ubuntu18.04
-# build the network
+# Build the Network
 ## Pre-requisite
-### docker
+### Docker
 Docker is a container,and the component in hyperledger fabric is simulated by running specific docker.
-#### install(by script)
+#### Install(by script)
 1、download script 
 ```
 $ curl -fsSL get.docker.com -o get-docker.sh
@@ -24,9 +24,9 @@ $ sudo usermod -aG docker XX
 $ sudo docker run hello-world
 ```
 If you see " Hello from Docker! This message shows that your installation appears to be working",Congratulation,you succeed!
-#### uninstall
+#### Uninstall
 sudo apt-get remove --auto-remove docker
-#### some common commands about docker
+#### Some Common Commands About Docker
 ```
 sudo docker ps -a(check the running dokcer)
 sudo docker stop XX(stop the running docker XX)
@@ -35,14 +35,14 @@ sudo docker image ls(check the images)
 sudo docker image rm XX(rm the dokcer image XX)
 sudo docker log XX(check the log of the running docker XX)
 sudo docker cp local path  docker ID:docker path(copy a file from local machine to docker)
-sudo docker cp '/home/liujing/下载/pbc-0.5.14'  be55b27495f3:/home(copy a file from local machine to docker)
+sudo docker cp '/pbc-0.5.14'  be55b27495f3:/home(copy a file from local machine to docker)
 sudo docker run -it  a1e3874f338b /bin/bash(into an image of docker)
 sudo docker exec -it 775c7c9ee1e1 /bin/bash(into a running docker)
 sudo docker commit runningdocker dockeriamge(pack a running docker to docker image)
 ```
-### docker-compose
+### Docker-compose
 Compose is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to configure your application’s services. Then, with a single command, you create and start all the services from your configuration. 
-#### install
+#### Install
 1、download docker-compose to /usr/local/bin/docker-compose
 ```
 $ sudo curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
@@ -55,8 +55,9 @@ $ sudo chmod +x /usr/local/bin/docker-compose
 ```
 $ docker-compose --version
 ```
-### go(optional)
+### Go(optional)
 1、download the tar of golang
+
 2、untar the tar to /usr/local
 ```
 $ sudo tar -C /usr/local -xzf go1.10.3.linux-amd64.tar.gz
@@ -83,15 +84,15 @@ $ source ~/.bashrc
 ```
 go version
 ```
-### maven
+### Maven
 <https://blog.csdn.net/badder2/article/details/89672612> 
-## blockchain-java-sdk
+## Blockchain-java-sdk
 tips：I can not find the way to deploy java chaincode with java sdk of this version.<https://jira.hyperledger.org/browse/FABJ-220>
 
 You can download the blockchain-java-sdk from
 https://github.com/IBM/blockchain-application-using-fabric-java-sdk
 then follow the step in readme.md to get your first network of blockchain
-### here is my experience
+### My Experience
 There are three important folders in the project.
 
 network:to build the network.You can check the docker-compose.yml to see the detail about the docker in the network.
@@ -99,10 +100,10 @@ network:to build the network.You can check the docker-compose.yml to see the det
 network_resources:something about cryptography,for example,key
 
 java:In the official direct,they coperate java file using command line.If you prefer IDE,you can open java file with Idea and modify the java file according to your needs.In /java/src/main/java/org/example/config/Config.java,you can find the location of chaincode.
-# my experiment1-bgn
+# My Experiment1-bgn
 I use go chaincode.
 I modify the project https://github.com/sachaservan/bgn according to my needs.The bgn is based on pbc.So I need to install pbc first.
-## The detail of installation
+## The Detail of Installation
 The official direct is  https://godoc.org/github.com/Nik-U/pbc.
 
 In my machine,Ubuntu18.04,I do the following steps.
@@ -127,7 +128,7 @@ sudo make install
 sudo ldconfig(After installing, you may need to rebuild the search path for libraries)
 ```
 5、I download the PBC Go Wrapper(https://github.com/Nik-U/pbc)
-## run bgn in chaincode
+## Run Bgn in Chaincode
 There is a way for you to import go packages into the chaincode
 
 you can put your packages under src/vendor folder
@@ -142,7 +143,7 @@ __________[other packages]
 But this does not solve my problem completely,the bgn need the support of C language.
 
 I recompile the image--hyperledger/fabric-ccenv, add the library I need.Because the chaincode is compiled in a container which is run base on fabric-ccenv image.
-### the problems I come to across
+### The Problems I come to across
 1、pt-get install vim：
 E:Unable to locate package vim
 
