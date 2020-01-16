@@ -104,6 +104,7 @@ I use go chaincode.
 I modify the project https://github.com/sachaservan/bgn according to my needs.The bgn is based on pbc.So I need to install pbc first.
 ## The detail of installation
 The official direct is  https://godoc.org/github.com/Nik-U/pbc.
+
 In my machine,Ubuntu18.04,I do the following steps.
 1、install GMP
 ```
@@ -116,7 +117,8 @@ sudo apt-get install build-essential flex bison
 3、download PBC library source code
 
 I download PBC library source code in https://crypto.stanford.edu/pbc/download.html
-compile and install
+
+4、compile and install
 ```
 ./configure
 make
