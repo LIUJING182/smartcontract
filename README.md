@@ -143,7 +143,7 @@ __________[other packages]
 But this does not solve my problem completely,the bgn need the support of C language.
 
 I recompile the image--hyperledger/fabric-ccenv, add the library I need.Because the chaincode is compiled in a container which is run base on fabric-ccenv image.
-### The Problems I come to across
+### The Problems I come across
 1、pt-get install vim：
 E:Unable to locate package vim
 
