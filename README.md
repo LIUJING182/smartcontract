@@ -86,5 +86,13 @@ go version
 ### maven
 <https://blog.csdn.net/badder2/article/details/89672612> 
 ## blockchain-java-sdk
-tip：I can not find the way to deploy java chaincode with java sdk of this version.<https://jira.hyperledger.org/browse/FABJ-220>
+tips：I can not find the way to deploy java chaincode with java sdk of this version.<https://jira.hyperledger.org/browse/FABJ-220>
+
+You can download the blockchain-java-sdk from
 https://github.com/IBM/blockchain-application-using-fabric-java-sdk
+then follow the step in readme.md to get your first network of blockchain
+### here is my experience
+There are three important folders in the project.
+network:to build the network.You can check the docker-compose.yml to see the detail about the docker in the network.
+network_resources:something about cryptography,for example,key
+java:the java-sdk.In the official direct,they coperate java file using command line.If you prefer IDE,you can open java file with Idea and modify the java file according to your needs.
