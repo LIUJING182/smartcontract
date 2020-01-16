@@ -98,4 +98,4 @@ network:to build the network.You can check the docker-compose.yml to see the det
 
 network_resources:something about cryptography,for example,key
 
-java:the java-sdk.In the official direct,they coperate java file using command line.If you prefer IDE,you can open java file with Idea and modify the java file according to your needs.
+java:In the official direct,they coperate java file using command line.If you prefer IDE,you can open java file with Idea and modify the java file according to your needs.
