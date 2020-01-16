@@ -93,6 +93,9 @@ https://github.com/IBM/blockchain-application-using-fabric-java-sdk
 then follow the step in readme.md to get your first network of blockchain
 ### here is my experience
 There are three important folders in the project.
+
 network:to build the network.You can check the docker-compose.yml to see the detail about the docker in the network.
+
 network_resources:something about cryptography,for example,key
+
 java:the java-sdk.In the official direct,they coperate java file using command line.If you prefer IDE,you can open java file with Idea and modify the java file according to your needs.
