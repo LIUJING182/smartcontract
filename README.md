@@ -143,8 +143,10 @@ But this does not solve my problem completely,the bgn need the support of C lang
 
 I recompile the image--hyperledger/fabric-ccenv, add the library I need.Because the chaincode is compiled in a container which is run base on fabric-ccenv image.
 ### the problems I come to across
-pt-get install vim命令则会有如下提示：
+1、pt-get install vim：
 E:Unable to locate package vim
 
 
-我们需要先敲入apt-get update命令
+We can type "apt-get update"
+2、create a new user and delete a user in Ubuntu18.04
+https://blog.csdn.net/qq_33867131/article/details/86490083
