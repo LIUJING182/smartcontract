@@ -57,6 +57,9 @@ $ docker-compose --version
 ```
 ### Go(optional)
 1、download the tar of golang
+```
+wget https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz
+```
 
 2、untar the tar to /usr/local
 ```
