@@ -90,7 +90,7 @@ go version
 ### Maven
 <https://blog.csdn.net/badder2/article/details/89672612> 
 ## Blockchain-java-sdk
-tips：I can not find the way to deploy java chaincode with java sdk of this version.<https://jira.hyperledger.org/browse/FABJ-220>
+tips：I can not find the way to deploy java chaincode with java sdk of this version. <https://jira.hyperledger.org/browse/FABJ-220>
 
 You can download the blockchain-java-sdk from
 https://github.com/IBM/blockchain-application-using-fabric-java-sdk
