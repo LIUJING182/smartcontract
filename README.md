@@ -94,7 +94,13 @@ tips：I can not find the way to deploy java chaincode with java sdk of this ver
 
 You can download the blockchain-java-sdk from
 https://github.com/IBM/blockchain-application-using-fabric-java-sdk
-then follow the step in readme.md to get your first network of blockchain
+then follow the step in readme.md to get your first network of blockchain.
+
+Java Running Step:
+CreateChannel,
+DeployInstantiateChaincode,
+RegisterEnrollUser,
+InvokeChaincode
 ### My Experience
 There are three important folders in the project.
 
