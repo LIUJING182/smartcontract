@@ -87,6 +87,12 @@ $ source ~/.bashrc
 ```
 go version
 ```
+#### run .go file
+1、build it
+```
+go build filename.go
+```
+2、execute the executable file
 ### Maven
 <https://blog.csdn.net/badder2/article/details/89672612> 
 ## Blockchain-java-sdk
